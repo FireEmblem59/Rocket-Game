@@ -13,8 +13,11 @@ let asteroidImage;
 let asteroids = [];
 let originalAsteroidSpeeds = [];
 let score = 0;
-let bestScore;
 let asteroidsNum = 10
+
+let Rmoney;
+let bestScore;
+let rocketSpeed;
 
 function preload() {
   explosion = loadImage("explosion.png")
@@ -24,9 +27,11 @@ function preload() {
 
 function setup() {
   
+  Rmoney = getItem("Rmoney") || 0;
   bestScore = getItem("bestScore") || 0;
+  rocketSpeed = getItem("rocketSpeed") || 1
   
-  setInterval(incrementCounter, 1000);
+  setInterval(incrementCounter, 100);
   
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
@@ -114,7 +119,9 @@ function draw() {
   if(buttonState === 3){
     textSize(50)
     fill(85, 50, 255)
-    text(`You lose\nYour score was : ${score}\nYour best score is ${bestScore}`, width/2, height/2)
+     Rmoney += Math.floor(score / 10);
+    storeItem("Rmoney", Rmoney)
+    text(`You lose\nYour score was : ${score}\nYour best score is ${bestScore}\nYou won ${Math.floor(score / 10)}$`, width/2, height/2)
   }
   
   if(buttonState === 1){
@@ -125,9 +132,23 @@ function draw() {
   
   
 
+  if(buttonState === 0){
+    fill(255)
+    rect(width/7, height/9, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)
+    text(`Best score : ${bestScore}`, width/2, width/9)
+    text(`Money : ${Rmoney}`, width/1.2, width/9)
+    textSize(15);
+      fill(0);
+    text(`Speed x ${rocketSpeed}\n(${10 * rocketSpeed})`, width/7, height/9);
+    if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/9 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/9 - PLAY_BUTTON_HEIGHT/2) {
+        cursor(HAND);
+      }
+  }
   // Draw buttons
   switch(buttonState) {
     case 0: // play
+      fill(255)
       rect(width/2, height/2 + 100, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
       textSize(30);
       fill(0);
@@ -201,11 +222,11 @@ class Character {
 
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { // A
       if(buttonState === 1){
-        this.velX = -5
+        this.velX = -rocketSpeed
       }
     } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) { // D
       if(buttonState === 1){
-        this.velX = 5
+        this.velX = rocketSpeed
       }
     } else {
       this.velX = 0;
@@ -213,11 +234,11 @@ class Character {
 
     if ((keyIsDown(UP_ARROW) || keyIsDown(87))) {
       if(buttonState === 1){
-        this.velY = -5
+        this.velY = -rocketSpeed
       }
     } else if(keyIsDown(DOWN_ARROW) || keyIsDown(83)){
       if(buttonState === 1){
-        this.velY = 5
+        this.velY = rocketSpeed
       }
     } else {
       this.velY = 0
@@ -245,4 +266,16 @@ function mousePressed() {
       }
       break;
   }
+  
+  if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/9 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/9 - PLAY_BUTTON_HEIGHT/2) {
+        if(buttonState === 0){
+          if(Rmoney >= 10 * rocketSpeed){
+            Rmoney = Rmoney - (10 * rocketSpeed)
+            rocketSpeed ++
+            storeItem("Rmoney", Rmoney)
+            storeItem("rocketSpeed", rocketSpeed)
+          }
+        }
+      }
 }
