@@ -13,6 +13,7 @@ let asteroidImage;
 let asteroids = [];
 let originalAsteroidSpeeds = [];
 let score = 0;
+let bestScore;
 let asteroidsNum = 10
 
 function preload() {
@@ -22,6 +23,8 @@ function preload() {
 }
 
 function setup() {
+  
+  bestScore = getItem("bestScore") || 0;
   
   setInterval(incrementCounter, 1000);
   
@@ -60,10 +63,8 @@ function draw() {
   fill(255);
   noStroke();
 
-  
-  
   if(buttonState === 1 ) {
-    text("Score: " + score, width/1.1, 20);
+    text(`Score: ${score}`, width/1.1, 20);
   }
   
   for(let i = 0; i < stars.length; i++) {
@@ -75,7 +76,6 @@ function draw() {
     }
   }
 
-  
   character.show();
   character.move();
   
@@ -91,9 +91,9 @@ function draw() {
       asteroids[i].x = random(width);
     }
     const speedIncrement = Math.floor(score / 10);
-  for (let i = 0; i < asteroids.length; i++) {
-    asteroids[i].y += speedIncrement/10;
-  }
+    for (let i = 0; i < asteroids.length; i++) {
+      asteroids[i].y += speedIncrement/10;
+    }
   }
   
   for(let i = 0; i < asteroids.length; i++) {
@@ -103,19 +103,25 @@ function draw() {
         noLoop(); 
         buttonState = 3
         image(explosion, asteroids[i].x, asteroids[i].y, 100, 85)
+        if(score > bestScore){
+          bestScore = score;
+          storeItem("bestScore", bestScore); 
+        }
       }
     }
   }
   
-  
   if(buttonState === 3){
     textSize(50)
     fill(85, 50, 255)
-    text("You lose\nYour score was : " + score, width/2, height/2)
+    text(`You lose\nYour score was : ${score}\nYour best score is ${bestScore}`, width/2, height/2)
   }
-
   
-  cursor(ARROW);
+  if(buttonState === 1){
+    noCursor()
+  } else {
+    cursor(ARROW);
+  }
   
   
 
