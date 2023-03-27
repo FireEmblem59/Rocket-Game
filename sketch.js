@@ -31,7 +31,7 @@ function setup() {
   bestScore = getItem("bestScore") || 0;
   rocketSpeed = getItem("rocketSpeed") || 1
   
-  setInterval(incrementCounter, 100);
+  setInterval(incrementCounter, 1000);
   
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
