@@ -18,7 +18,10 @@ let asteroidsNum = 10
 let Rmoney;
 let bestScore;
 let rocketSpeed;
+let slowAsteroids;
+let smallAsteroids;
 let lastScore;
+
 
 function preload() {
   explosion = loadImage("explosion.png")
@@ -32,8 +35,10 @@ function setup() {
   bestScore = getItem("bestScore") || 0;
   rocketSpeed = getItem("rocketSpeed") || 1
   lastScore = getItem("lastScore") || 0
+  slowAsteroids = getItem("slowAsteroids") || 1
+  smallAsteroids = getItem("smallAsteroids") || 1
   
-  setInterval(incrementCounter, 100);
+  setInterval(incrementCounter, 1000);
   
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
@@ -97,14 +102,14 @@ function draw() {
       asteroids[i].y = 0;
       asteroids[i].x = random(width);
     }
-    const speedIncrement = Math.floor(score / 10);
+    let speedIncrement = Math.floor(score / 10);
     for (let i = 0; i < asteroids.length; i++) {
-      asteroids[i].y += speedIncrement/10;
+      asteroids[i].y += (speedIncrement/10)/slowAsteroids;
     }
     
     const sizeIncrement = Math.floor(score / 50);
     for (let i = 0; i < asteroids.length; i++) {
-      asteroids[i].size += sizeIncrement/300;
+      asteroids[i].size += (sizeIncrement/300)/smallAsteroids;
     }
   }
   
@@ -131,7 +136,7 @@ function draw() {
     storeItem("lastScore", lastScore)
     storeItem("Rmoney", Rmoney)
     if(score === bestScore){
-      text(`You lose\nYour score is : ${score}\nYou won ${Math.floor(score / 10)}\nYour best score is : ${bestScore}`, width/2, height/2)
+      text(`You lose\nYour score is : ${score}\nYou won ${Math.floor(score / 10)}$\nYour best score is : ${bestScore}`, width/2, height/2)
     } else{
       text(`You lose\nYour score is : ${score}\nYou won ${Math.floor(score / 10)}$`, width/2, height/2)
     }
@@ -147,17 +152,36 @@ function draw() {
 
   if(buttonState === 0){
     fill(255)
-    rect(width/7, height/9, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)//upgrade speed
+    rect(width/7, height/9, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)//upgrade rocket speed
     
-    rect(width/15, height/1.1, PLAY_BUTTON_WIDTH/2, PLAY_BUTTON_HEIGHT/2)//
+    rect(width/7, height/4.5, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)//decrease asteroids speed
+    
+    rect(width/7, height/3, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT) //decrease asteroids size
+    
+    rect(width/15, height/1.1, PLAY_BUTTON_WIDTH/2, PLAY_BUTTON_HEIGHT/2)//restart the game
+    
     text(`Best score : ${bestScore}`, width/2, height/9) //best score
-    text(`Last score : ${lastScore}`, width/2, height/5)
+    
+    text(`Last score : ${lastScore}`, width/2, height/5)//last score
+    
     text(`Money : ${Rmoney}`, width/1.2, width/9) //money
+    
     textSize(15);
       fill(0);
-    text(`Speed x ${rocketSpeed}\n(${10 * rocketSpeed})`, width/7, height/9);
+    text(`Rocket speed x ${rocketSpeed}\n(${10 * rocketSpeed})`, width/7, height/9);
     if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
          mouseY < height/9 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/9 - PLAY_BUTTON_HEIGHT/2) {
+        cursor(HAND);
+      }
+    
+    text(`Asteroids speed x ${slowAsteroids}\n(${slowAsteroids * 15})`, width/7, height/4.5)
+    if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/4.5 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/4.5 - PLAY_BUTTON_HEIGHT/2) {
+        cursor(HAND);
+      }
+    text(`Small asteroids x ${smallAsteroids}\n(${smallAsteroids * 20})`, width/7, height/3)
+    if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/3 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/3 - PLAY_BUTTON_HEIGHT/2) {
         cursor(HAND);
       }
     
@@ -301,6 +325,30 @@ function mousePressed() {
           }
         }
       }
+  
+  if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/4.5 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/4.5 - PLAY_BUTTON_HEIGHT/2) {
+    if(buttonState === 0){
+      if(Rmoney >= slowAsteroids * 15){
+        Rmoney = Rmoney - (slowAsteroids * 15)
+        slowAsteroids ++
+        storeItem("Rmoney", Rmoney)
+        storeItem("slowAsteroids", slowAsteroids)
+      }
+    }
+  }
+  
+  if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
+         mouseY < height/3 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/3 - PLAY_BUTTON_HEIGHT/2) {
+    if(buttonState === 0){
+      if(Rmoney >= smallAsteroids * 20){
+        Rmoney = Rmoney - (smallAsteroids * 20)
+        smallAsteroids ++
+        storeItem("Rmoney", Rmoney)
+        storeItem("smallAsteroids", smallAsteroids)
+      }
+    }
+  }
   
   if(mouseX < width/15 + PLAY_BUTTON_WIDTH/4 && mouseX > width/15 - PLAY_BUTTON_WIDTH/4 &&
          mouseY < height/1.1 + PLAY_BUTTON_HEIGHT/4 && mouseY > height/1.1 - PLAY_BUTTON_HEIGHT/4){
