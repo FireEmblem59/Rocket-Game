@@ -18,6 +18,7 @@ let asteroidsNum = 10
 let Rmoney;
 let bestScore;
 let rocketSpeed;
+let lastScore;
 
 function preload() {
   explosion = loadImage("explosion.png")
@@ -30,8 +31,9 @@ function setup() {
   Rmoney = getItem("Rmoney") || 0;
   bestScore = getItem("bestScore") || 0;
   rocketSpeed = getItem("rocketSpeed") || 1
+  lastScore = getItem("lastScore") || 0
   
-  setInterval(incrementCounter, 1000);
+  setInterval(incrementCounter, 100);
   
   createCanvas(windowWidth, windowHeight);
   rectMode(CENTER);
@@ -99,6 +101,11 @@ function draw() {
     for (let i = 0; i < asteroids.length; i++) {
       asteroids[i].y += speedIncrement/10;
     }
+    
+    const sizeIncrement = Math.floor(score / 50);
+    for (let i = 0; i < asteroids.length; i++) {
+      asteroids[i].size += sizeIncrement/300;
+    }
   }
   
   for(let i = 0; i < asteroids.length; i++) {
@@ -117,11 +124,17 @@ function draw() {
   }
   
   if(buttonState === 3){
-    textSize(50)
+      textSize(50)
     fill(85, 50, 255)
      Rmoney += Math.floor(score / 10);
+    lastScore = score
+    storeItem("lastScore", lastScore)
     storeItem("Rmoney", Rmoney)
-    text(`You lose\nYour score was : ${score}\nYour best score is ${bestScore}\nYou won ${Math.floor(score / 10)}$`, width/2, height/2)
+    if(score === bestScore){
+      text(`You lose\nYour score is : ${score}\nYou won ${Math.floor(score / 10)}\nYour best score is : ${bestScore}`, width/2, height/2)
+    } else{
+      text(`You lose\nYour score is : ${score}\nYou won ${Math.floor(score / 10)}$`, width/2, height/2)
+    }
   }
   
   if(buttonState === 1){
@@ -134,14 +147,24 @@ function draw() {
 
   if(buttonState === 0){
     fill(255)
-    rect(width/7, height/9, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)
-    text(`Best score : ${bestScore}`, width/2, width/9)
-    text(`Money : ${Rmoney}`, width/1.2, width/9)
+    rect(width/7, height/9, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT)//upgrade speed
+    
+    rect(width/15, height/1.1, PLAY_BUTTON_WIDTH/2, PLAY_BUTTON_HEIGHT/2)//
+    text(`Best score : ${bestScore}`, width/2, height/9) //best score
+    text(`Last score : ${lastScore}`, width/2, height/5)
+    text(`Money : ${Rmoney}`, width/1.2, width/9) //money
     textSize(15);
       fill(0);
     text(`Speed x ${rocketSpeed}\n(${10 * rocketSpeed})`, width/7, height/9);
     if(mouseX < width/7 + PLAY_BUTTON_WIDTH/2 && mouseX > width/7 - PLAY_BUTTON_WIDTH/2 &&
          mouseY < height/9 + PLAY_BUTTON_HEIGHT/2 && mouseY > height/9 - PLAY_BUTTON_HEIGHT/2) {
+        cursor(HAND);
+      }
+    
+    textSize(10)
+    text(`restart the game`, width/15, height/1.1);
+    if(mouseX < width/15 + PLAY_BUTTON_WIDTH/4 && mouseX > width/15 - PLAY_BUTTON_WIDTH/4 &&
+         mouseY < height/1.1 + PLAY_BUTTON_HEIGHT/4 && mouseY > height/1.1 - PLAY_BUTTON_HEIGHT/4) {
         cursor(HAND);
       }
   }
@@ -278,4 +301,13 @@ function mousePressed() {
           }
         }
       }
+  
+  if(mouseX < width/15 + PLAY_BUTTON_WIDTH/4 && mouseX > width/15 - PLAY_BUTTON_WIDTH/4 &&
+         mouseY < height/1.1 + PLAY_BUTTON_HEIGHT/4 && mouseY > height/1.1 - PLAY_BUTTON_HEIGHT/4){
+    let result = confirm("Are you sure you want to do this?\nBy pressing ok, you will lose all your progress");
+    if (result) {
+      clearStorage()
+      location.reload()
+    }
+  }
 }
